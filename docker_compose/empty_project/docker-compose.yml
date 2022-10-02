@@ -3,9 +3,9 @@ services:
   db:
     image: postgres:13
     volumes:
-      - $HOME/postgresql/data:/var/lib/postgresql/data/
-    env_file:
-      - .env
+      - movies-data:/var/lib/postgresql/data/
+    env_file: 
+      - .env 
 
   movies-admin:
     build: movies-admin
@@ -24,3 +24,5 @@ services:
       - movies-admin
     ports:
       - "80:80"
+volumes:
+  movies-data:

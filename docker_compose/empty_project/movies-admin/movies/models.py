@@ -32,6 +32,19 @@ class Genre(TimeStampedMixin, UUIDMixin):
         verbose_name_plural = 'Жанры'
 
 
+class Person(TimeStampedMixin, UUIDMixin):
+
+    full_name = models.TextField(_('full name'))
+
+    def __str__(self):
+        return self.full_name
+
+    class Meta:
+        db_table = "content\".\"person"
+        verbose_name = 'Персона'
+        verbose_name_plural = 'Персоны'
+
+
 class Filmwork(TimeStampedMixin, UUIDMixin):
 
     class TypeOfFilm(models.TextChoices):
@@ -50,7 +63,8 @@ class Filmwork(TimeStampedMixin, UUIDMixin):
                             default=TypeOfFilm.MOVIE
                             )
     creation_date = models.DateField(_('creation date'))
-    genres = models.ManyToManyField(Genre, through='GenreFilmwork')
+    genre = models.ManyToManyField(Genre, through='GenreFilmwork')
+    person = models.ManyToManyField(Person, through='PersonFilmwork')
     file_path = models.FileField(
                                 _('file'),
                                 blank=True,
@@ -73,8 +87,8 @@ class Filmwork(TimeStampedMixin, UUIDMixin):
 
 class GenreFilmwork(UUIDMixin):
     film_work = models.ForeignKey(Filmwork, on_delete=models.CASCADE)
-    genre = models.ManyToManyField(Genre, through='GenreFilmwork')
-    person = models.ManyToManyField(Person, through='PersonFilmwork')
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "content\".\"genre_film_work"
@@ -86,19 +100,6 @@ class GenreFilmwork(UUIDMixin):
         ]
 
 
-class Person(TimeStampedMixin, UUIDMixin):
-
-    full_name = models.TextField(_('full name'))
-
-    def __str__(self):
-        return self.full_name
-
-    class Meta:
-        db_table = "content\".\"person"
-        verbose_name = 'Персона'
-        verbose_name_plural = 'Персоны'
-
-
 class PersonFilmwork(UUIDMixin):
     film_work = models.ForeignKey(Filmwork, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -108,7 +109,7 @@ class PersonFilmwork(UUIDMixin):
         ACTOR = 'actor', _('Актер')
         WRITER = 'writer', _('Сценарист')
 
-    role = models.CharField(choices=Role.choices, max_length=9)
+    role = models.CharField(choices=Role.choices, max_length=9, default=None)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
